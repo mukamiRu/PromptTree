@@ -1,4 +1,3 @@
-
 // ----------------------
 // DOM取得
 // ----------------------
@@ -25,8 +24,8 @@ const sampleText = `my_project
   package.json`;
 
 // 状態管理
-let sampleVisible = true;
-let originalInput = '';
+let sampleVisible = true;      // サンプルが現在表示されているか
+let userInput = '';            // ユーザーが入力した内容を保持
 
 // ----------------------
 // UI更新
@@ -101,33 +100,39 @@ inputText.addEventListener('keydown', function(e){
 // ----------------------
 // 入力開始でサンプル非表示
 // ----------------------
-inputText.addEventListener('input', ()=>{
+inputText.addEventListener('input', () => {
   if(sampleVisible){
-    originalInput='';
-    hideSample();
+    // サンプルを消してユーザー入力に置き換える
+    sampleVisible = false;
+    userInput = inputText.value.slice(-1); // 入力した文字だけ残す
+    inputText.value = userInput;
+    updateSampleUI();
   } else {
-    originalInput = inputText.value;
-    generateTree();
+    userInput = inputText.value;
   }
+  generateTree();
 });
 
 // ----------------------
 // サンプル表示 / 非表示
 // ----------------------
-function showSample(){
-  sampleVisible=true;
+function showSample() {
+  sampleVisible = true;
   inputText.value = sampleText;
-  originalInput='';
   updateSampleUI();
   generateTree();
 }
-function hideSample(){
-  sampleVisible=false;
-  inputText.value = originalInput;
+
+function hideSample() {
+  sampleVisible = false;
+  inputText.value = userInput || '';
   updateSampleUI();
   generateTree();
 }
-sampleButton.addEventListener('click', ()=>{ sampleVisible?hideSample():showSample(); });
+
+sampleButton.addEventListener('click', ()=>{
+  sampleVisible ? hideSample() : showSample();
+});
 
 // ----------------------
 // 全削除
@@ -136,7 +141,7 @@ clearButton.addEventListener('click', ()=>{
   inputText.value='';
   outputCode.textContent='';
   sampleVisible=false;
-  originalInput='';
+  userInput='';
   updateSampleUI();
 });
 
@@ -155,7 +160,7 @@ copyButton.addEventListener('click', ()=>{
 });
 
 // ----------------------
-// Markdown切替・Emoji切替
+// Markdown / Emoji切替
 // ----------------------
 markdownToggle.addEventListener('change', generateTree);
 emojiToggle.addEventListener('change', generateTree);
@@ -177,5 +182,5 @@ function applyInitialDarkMode(){
 // 初期化
 window.onload = ()=>{
   applyInitialDarkMode();
-  showSample();
+  showSample(); // 最初はサンプル表示
 };
