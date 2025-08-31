@@ -1,0 +1,5 @@
+
+body { font-family:'Inter',sans-serif; transition: background-color 0.3s,color 0.3s; }
+body.dark { background-color:#1a202c; color:#e2e8f0; }
+textarea.sample-active { background-color:#f0f0f0; color:#888; } /* サンプル表示中 */
+textarea.user-input { background-color:#fff; color:inherit; }       /* 入力中 */
