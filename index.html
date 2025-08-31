@@ -1,192 +1,93 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PromptTree: AIに伝わるディレクトリ構成図メーカー</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        /* Dark mode styles */
-        body.dark {
-            background-color: #1a202c; /* Dark background */
-            color: #e2e8f0; /* Light text */
-        }
-        .dark .bg-white {
-            background-color: #2d3748; /* Darker background for cards */
-        }
-        .dark .text-gray-800 {
-            color: #e2e8f0;
-        }
-        .dark .border-gray-300 {
-            border-color: #4a5568;
-        }
-        .dark .focus\\:ring-blue-500:focus {
-            --tw-ring-color: #63b3ed; /* Blue for dark mode focus */
-        }
-        .dark .text-gray-700 {
-            color: #cbd5e0;
-        }
-        .dark .placeholder-gray-400::placeholder {
-            color: #a0aec0;
-        }
-        .dark .bg-gray-100 {
-            background-color: #2d3748;
-        }
-        .dark .bg-blue-500 {
-            background-color: #4299e1;
-        }
-        .dark .hover\\:bg-blue-600:hover {
-            background-color: #3182ce;
-        }
-        .dark .bg-green-500 {
-            background-color: #48bb78;
-        }
-        .dark .hover\\:bg-green-600:hover {
-            background-color: #38a169;
-        }
-        .dark .bg-indigo-500 {
-            background-color: #667eea;
-        }
-        .dark .hover\\:bg-indigo-600:hover {
-            background-color: #5a67d8;
-        }
-        .dark .bg-purple-500 {
-            background-color: #9f7aea;
-        }
-        .dark .hover\\:bg-purple-600:hover {
-            background-color: #805ad5;
-        }
-        .dark .bg-teal-500 {
-            background-color: #4fd1c5;
-        }
-        .dark .hover\\:bg-teal-600:hover {
-            background-color: #38b2ac;
-        }
-        /* Custom scrollbar for textareas */
-        textarea::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        textarea::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .dark textarea::-webkit-scrollbar-track {
-            background: #4a5568;
-        }
-        textarea::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        .dark textarea::-webkit-scrollbar-thumb {
-            background: #a0aec0;
-        }
-        textarea::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        .dark textarea::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptTree — AIに伝わるディレクトリ構成図メーカー</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body { font-family:'Inter',sans-serif; transition: background-color 0.3s,color 0.3s; }
+body.dark { background-color:#1a202c; color:#e2e8f0; }
+textarea.sample-active { background-color:#f0f0f0; color:#888; } /* サンプル表示中 */
+textarea.user-input { background-color:#fff; color:inherit; }       /* 入力中 */
+</style>
 </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
-    <header class="bg-white shadow-sm p-4 sticky top-0 z-10 rounded-b-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-blue-600">PromptTree</h1>
-            <div class="flex items-center space-x-4">
-                <span class="text-sm text-gray-600 hidden md:block">AIに正確に伝わるディレクトリ構成図メーカー</span>
-                <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200" aria-label="Toggle dark mode">
-                    <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </header>
 
-    <main class="flex-grow container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- 説明文セクション -->
-        <section class="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
-            <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">PromptTreeとは？</h2>
-            <p class="mb-2 text-gray-700 dark:text-gray-300">
-                大規模言語モデル（LLM）の進化により、私たちはコード生成やドキュメント作成をAIに手伝ってもらう機会が増えました。しかし、複雑なディレクトリ構造やファイル構成をAIに正確に伝えるのは意外と骨の折れる作業です。
-            </p>
-            <p class="text-gray-700 dark:text-gray-300">
-                `README.md`やプレゼン資料、技術ブログなど、様々な用途で活用できます。
-            </p>
-        </section>
+<!-- ヘッダー -->
+<header class="bg-white shadow-sm p-4 sticky top-0 z-10 rounded-b-lg flex justify-between items-center">
+  <div>
+    <h1 class="text-2xl font-bold text-blue-600">PromptTree</h1>
+    <p class="text-sm text-gray-600 dark:text-gray-400">AIに正確に伝わるディレクトリ構成図メーカー — コードやドキュメント作成を効率化</p>
+  </div>
+  <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600">🌙</button>
+</header>
 
-        <!-- 入力セクション -->
-        <section class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">入力 (インデントで階層を表現)</h2>
-            <textarea id="inputText" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:placeholder-gray-400" placeholder="例:
-root
-  folder1
-    file1.txt
-    subfolder
-      file2.md
-  readme.md"></textarea>
+<main class="flex-grow container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-            <div class="mt-4 flex flex-wrap gap-3">
-                <button id="generateButton" class="flex-1 min-w-[150px] bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200">
-                    構成図を生成
-                </button>
-                <button id="sampleButton" class="flex-1 min-w-[150px] bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200">
-                    サンプルを表示
-                </button>
-                <div class="flex-1 min-w-[150px] flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-2 shadow-md">
-                    <span class="mr-2 text-gray-700 dark:text-gray-300 text-sm">記号タイプ:</span>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="emojiToggle" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">絵文字</span>
-                    </label>
-                </div>
-            </div>
-        </section>
+<!-- 説明文 -->
+<section class="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
+  <h2 class="text-xl font-semibold mb-3">PromptTreeの目的・魅力</h2>
+  <ul class="list-disc pl-5 text-gray-700 dark:text-gray-300">
+    <li>複雑なディレクトリ構造をAIに正確に伝えるのが簡単になる</li>
+    <li>READMEや技術ブログ、プレゼン資料に活用可能</li>
+    <li>サンプル表示/非表示で直感的に学習・確認できる</li>
+    <li>Markdownや絵文字を簡単に切替え可能</li>
+  </ul>
+</section>
 
-        <!-- 出力セクション -->
-        <section class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">出力 (生成された構成図)</h2>
-            <pre id="outputCode" class="w-full h-64 p-3 border border-gray-300 rounded-lg bg-gray-100 overflow-auto text-sm whitespace-pre-wrap break-words dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></pre>
-            <div class="mt-4 flex justify-end">
-                <button id="copyButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 0h-2M15 7H9m12 0v3"></path></svg>
-                    コピー
-                </button>
-            </div>
-            <div id="copyMessage" class="mt-2 text-center text-sm text-green-600 dark:text-green-400 hidden">
-                コピーしました！
-            </div>
-        </section>
-    </main>
+<!-- 入力 -->
+<section class="bg-white p-6 rounded-lg shadow-md">
+  <h2 class="text-xl font-semibold mb-4">入力 (インデントで階層表現)</h2>
+  <textarea id="inputText" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 sample-active"></textarea>
 
-    <footer class="bg-white shadow-inner p-4 mt-6 rounded-t-lg">
-        <div class="container mx-auto text-center text-gray-600 dark:text-gray-400 text-sm">
-            &copy; 2025 PromptTree. All rights reserved.
-        </div>
-    </footer>
+  <div class="mt-4 flex flex-wrap gap-3">
+    <button id="sampleButton" class="flex-1 min-w-[120px] bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded-lg">サンプル非表示</button>
+    <button id="clearButton" class="flex-1 min-w-[120px] bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg">全削除</button>
+    <div class="flex-1 min-w-[120px] flex items-center bg-gray-100 rounded-lg p-2">
+      <span class="mr-2 text-sm">絵文字</span>
+      <input type="checkbox" id="emojiToggle">
+    </div>
+    <div class="flex-1 min-w-[120px] flex items-center bg-gray-100 rounded-lg p-2">
+      <span class="mr-2 text-sm">Markdown</span>
+      <input type="checkbox" id="markdownToggle">
+    </div>
+  </div>
+</section>
 
-    <script>
-        // DOM要素の取得
-        const inputText = document.getElementById('inputText');
-        const outputCode = document.getElementById('outputCode');
-        const generateButton = document.getElementById('generateButton');
-        const copyButton = document.getElementById('copyButton');
-        const sampleButton = document.getElementById('sampleButton');
-        const emojiToggle = document.getElementById('emojiToggle');
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const copyMessage = document.getElementById('copyMessage');
+<!-- 出力 -->
+<section class="bg-white p-6 rounded-lg shadow-md">
+  <h2 class="text-xl font-semibold mb-4">出力 (生成された構成図)</h2>
+  <pre id="outputCode" class="w-full h-64 p-3 border border-gray-300 rounded-lg bg-gray-100 overflow-auto text-sm whitespace-pre-wrap break-words"></pre>
+  <div class="mt-4 flex justify-end gap-2">
+    <button id="copyButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">コピー</button>
+  </div>
+  <div id="copyMessage" class="mt-2 text-center text-sm text-green-600 hidden">コピーしました！</div>
+</section>
 
-        // サンプルテキスト
-        const sampleText = `my_project
+</main>
+
+<footer class="bg-white shadow-inner p-4 mt-6 rounded-t-lg text-center text-gray-600 dark:text-gray-400">
+&copy; 2025 PromptTree. All rights reserved.
+</footer>
+
+<script>
+// ----------------------
+// DOM取得
+// ----------------------
+const inputText = document.getElementById('inputText');
+const outputCode = document.getElementById('outputCode');
+const sampleButton = document.getElementById('sampleButton');
+const clearButton = document.getElementById('clearButton');
+const copyButton = document.getElementById('copyButton');
+const emojiToggle = document.getElementById('emojiToggle');
+const markdownToggle = document.getElementById('markdownToggle');
+const darkModeToggle = document.getElementById('darkModeToggle');
+const copyMessage = document.getElementById('copyMessage');
+
+// サンプルテキスト
+const sampleText = `my_project
   src
     components
       Header.jsx
@@ -194,156 +95,164 @@ root
     pages
       index.jsx
       about.jsx
-    App.jsx
-  public
-    index.html
-    favicon.ico
   README.md
-  package.json
-  .gitignore`;
+  package.json`;
 
-        // ディレクトリ構成図を生成する関数
-        function generateTree() {
-            const lines = inputText.value.split('\n').filter(line => line.trim() !== '');
-            let output = [];
-            const useEmoji = emojiToggle.checked;
+// 状態管理
+let sampleVisible = true;
+let originalInput = '';
 
-            // 各行を処理し、階層と名前を抽出
-            const parsedLines = lines.map(line => {
-                const leadingSpaces = line.match(/^\s*/)[0].length;
-                const indentLevel = leadingSpaces / 2; // 2スペースで1インデントと仮定
-                const name = line.trim();
-                return { indentLevel, name };
-            });
+// ----------------------
+// UI更新
+// ----------------------
+function updateSampleUI(){
+  if(sampleVisible){
+    inputText.classList.add('sample-active');
+    inputText.classList.remove('user-input');
+    sampleButton.textContent = "サンプル非表示";
+  } else {
+    inputText.classList.remove('sample-active');
+    inputText.classList.add('user-input');
+    sampleButton.textContent = "サンプル表示";
+  }
+}
 
-            // 記号を付与して整形
-            for (let i = 0; i < parsedLines.length; i++) {
-                const current = parsedLines[i];
-                let prefix = '';
+// ----------------------
+// ツリー生成
+// ----------------------
+function generateTree(){
+  if(!inputText.value.trim()){ outputCode.textContent=''; return; }
 
-                for (let j = 0; j < current.indentLevel; j++) {
-                    // 親要素がまだ枝を持っているかチェック
-                    let hasMoreSiblings = false;
-                    for (let k = i + 1; k < parsedLines.length; k++) {
-                        if (parsedLines[k].indentLevel === j) { // 同じ階層の次の要素
-                            hasMoreSiblings = true;
-                            break;
-                        }
-                        if (parsedLines[k].indentLevel < j) { // 親の階層より上がった
-                            break;
-                        }
-                    }
-                    prefix += hasMoreSiblings ? '│   ' : '    ';
-                }
+  const lines = inputText.value.split('\n').filter(l=>l.trim()!=='');
+  const useEmoji = emojiToggle.checked;
+  let output=[];
 
-                // 現在の要素が最後の兄弟かチェック
-                let isLastSibling = true;
-                for (let k = i + 1; k < parsedLines.length; k++) {
-                    if (parsedLines[k].indentLevel === current.indentLevel) {
-                        isLastSibling = false;
-                        break;
-                    }
-                    if (parsedLines[k].indentLevel < current.indentLevel) {
-                        break;
-                    }
-                }
+  const parsed = lines.map(line=>{
+    const indent = line.match(/^\s*/)[0].length/2;
+    return {indent, name: line.trim()};
+  });
 
-                const linePrefix = current.indentLevel > 0 ? (isLastSibling ? '└── ' : '├── ') : '';
-                const icon = useEmoji ? (current.name.includes('.') ? '📄 ' : '📁 ') : ''; // ファイル名に'.'があればファイル、なければフォルダと簡易判定
+  for(let i=0;i<parsed.length;i++){
+    const cur = parsed[i];
+    let prefix='';
+    for(let j=0;j<cur.indent;j++){
+      let hasSibling=false;
+      for(let k=i+1;k<parsed.length;k++){
+        if(parsed[k].indent===j){ hasSibling=true; break; }
+        if(parsed[k].indent<j) break;
+      }
+      prefix += hasSibling ? '│   ' : '    ';
+    }
+    let isLast=true;
+    for(let k=i+1;k<parsed.length;k++){
+      if(parsed[k].indent===cur.indent){ isLast=false; break; }
+      if(parsed[k].indent<cur.indent) break;
+    }
+    const linePrefix = cur.indent>0 ? (isLast ? '└── ':'├── ') : '';
+    const icon = useEmoji ? (cur.name.includes('.')?'📄 ':'📁 ') : '';
+    output.push(`${prefix}${linePrefix}${icon}${cur.name}`);
+  }
 
-                output.push(`${prefix}${linePrefix}${icon}${current.name}`);
-            }
+  let text = output.join('\n');
+  if(markdownToggle.checked) text='```\n'+text+'\n```';
+  outputCode.textContent = text;
+}
 
-            outputCode.textContent = output.join('\n');
-        }
+// ----------------------
+// Tabキーでインデント
+// ----------------------
+inputText.addEventListener('keydown', function(e){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const start=this.selectionStart;
+    const end=this.selectionEnd;
+    this.value=this.value.substring(0,start)+'  '+this.value.substring(end);
+    this.selectionStart=this.selectionEnd=start+2;
+    generateTree();
+  }
+});
 
-        // クリップボードにコピーする関数
-        function copyToClipboard() {
-            const textToCopy = outputCode.textContent;
-            if (textToCopy) {
-                // navigator.clipboard.writeText() は iframe 内で制限される場合があるため、
-                // document.execCommand('copy') を使用
-                const textarea = document.createElement('textarea');
-                textarea.value = textToCopy;
-                textarea.style.position = 'fixed'; // 画面外に配置
-                textarea.style.left = '-9999px';
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
-                    copyMessage.classList.remove('hidden');
-                    setTimeout(() => {
-                        copyMessage.classList.add('hidden');
-                    }, 2000);
-                } catch (err) {
-                    console.error('コピーに失敗しました:', err);
-                    // ユーザーに手動コピーを促すメッセージなどを表示することも検討
-                } finally {
-                    document.body.removeChild(textarea);
-                }
-            }
-        }
+// ----------------------
+// 入力開始でサンプル非表示
+// ----------------------
+inputText.addEventListener('input', ()=>{
+  if(sampleVisible){
+    originalInput='';
+    hideSample();
+  } else {
+    originalInput = inputText.value;
+    generateTree();
+  }
+});
 
-        // ダークモード切り替え関数
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark');
-            const isDarkMode = document.body.classList.contains('dark');
-            localStorage.setItem('darkMode', isDarkMode); // 設定を保存
-        }
+// ----------------------
+// サンプル表示 / 非表示
+// ----------------------
+function showSample(){
+  sampleVisible=true;
+  inputText.value = sampleText;
+  originalInput='';
+  updateSampleUI();
+  generateTree();
+}
+function hideSample(){
+  sampleVisible=false;
+  inputText.value = originalInput;
+  updateSampleUI();
+  generateTree();
+}
+sampleButton.addEventListener('click', ()=>{ sampleVisible?hideSample():showSample(); });
 
-        // 初期ロード時にダークモード設定を適用
-        function applyInitialDarkMode() {
-            const savedMode = localStorage.getItem('darkMode');
-            if (savedMode === 'true') {
-                document.body.classList.add('dark');
-            } else if (savedMode === null && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                // システム設定がダークモードの場合、初回のみ適用
-                document.body.classList.add('dark');
-            }
-        }
+// ----------------------
+// 全削除
+// ----------------------
+clearButton.addEventListener('click', ()=>{
+  inputText.value='';
+  outputCode.textContent='';
+  sampleVisible=false;
+  originalInput='';
+  updateSampleUI();
+});
 
-        // イベントリスナーの設定
-        generateButton.addEventListener('click', generateTree);
-        copyButton.addEventListener('click', copyToClipboard);
-        sampleButton.addEventListener('click', () => {
-            inputText.value = sampleText;
-            generateTree(); // サンプルを読み込んだら自動で生成
-        });
-        emojiToggle.addEventListener('change', generateTree); // 絵文字トグルが変更されたら再生成
-        darkModeToggle.addEventListener('click', toggleDarkMode);
+// ----------------------
+// コピー
+// ----------------------
+copyButton.addEventListener('click', ()=>{
+  const ta=document.createElement('textarea');
+  ta.value=outputCode.textContent;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  copyMessage.classList.remove('hidden');
+  setTimeout(()=>copyMessage.classList.add('hidden'),2000);
+});
 
-        // 入力テキストエリアでのTabキー挙動を制御（インデント入力のため）
-        inputText.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault(); // デフォルトのTabキー動作（フォーカス移動）をキャンセル
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
+// ----------------------
+// Markdown切替・Emoji切替
+// ----------------------
+markdownToggle.addEventListener('change', generateTree);
+emojiToggle.addEventListener('change', generateTree);
 
-                // 選択範囲がある場合は、複数行をインデント
-                if (start !== end && this.value.substring(start, end).includes('\n')) {
-                    const lines = this.value.substring(0, end).split('\n');
-                    const lastLineStart = this.value.substring(0, start).lastIndexOf('\n') + 1;
-                    const selectedText = this.value.substring(lastLineStart, end);
+// ----------------------
+// ダークモード
+// ----------------------
+darkModeToggle.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+});
+function applyInitialDarkMode(){
+  const saved = localStorage.getItem('darkMode');
+  if(saved==='true') document.body.classList.add('dark');
+  else if(!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    document.body.classList.add('dark');
+}
 
-                    const indentedText = selectedText.split('\n').map(line => '  ' + line).join('\n');
-                    this.value = this.value.substring(0, lastLineStart) + indentedText + this.value.substring(end);
-                    this.selectionStart = lastLineStart + indentedText.length;
-                    this.selectionEnd = lastLineStart + indentedText.length;
-                } else {
-                    // 単一行のインデント
-                    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
-                    this.selectionStart = this.selectionEnd = start + 2;
-                }
-            }
-        });
-
-        // ページロード時の初期化
-        window.onload = () => {
-            applyInitialDarkMode(); // ダークモード設定を適用
-            inputText.value = sampleText; // 初期表示でサンプルをセット
-            generateTree(); // 初期表示でサンプルから構成図を生成
-        };
-    </script>
+// 初期化
+window.onload = ()=>{
+  applyInitialDarkMode();
+  showSample();
+};
+</script>
 </body>
 </html>
-l
